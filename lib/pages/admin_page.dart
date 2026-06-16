@@ -23,6 +23,12 @@ class _AdminPageState extends State<AdminPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.logout),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         title: const Text("All Bookings"),
         actions: [
           IconButton(

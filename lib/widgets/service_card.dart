@@ -1,63 +1,119 @@
 import 'package:flutter/material.dart';
 
-class ServiceCard extends StatelessWidget {
+class ServiceCard extends StatefulWidget {
   final String name;
   final String image;
+  final VoidCallback onTap;
 
   const ServiceCard({
-  super.key,
-  required this.name,
-  required this.image,
-  required this.onTap,
-});
-  final VoidCallback onTap;
+    super.key,
+    required this.name,
+    required this.image,
+    required this.onTap,
+  });
+
+  @override
+  State<ServiceCard> createState() =>
+      _ServiceCardState();
+}
+
+class _ServiceCardState
+    extends State<ServiceCard> {
+
+  bool isHovered = false;
+
   @override
   Widget build(BuildContext context) {
-    return Card(
-      shadowColor: Colors.black26,
-      elevation: 6,
-      clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        child: Column(
-  mainAxisAlignment: MainAxisAlignment.center,
-  children: [
-   Container(
-     decoration: BoxDecoration(
-    shape: BoxShape.circle,
-    boxShadow: [
-      BoxShadow(
-        color: Colors.black26,
-        blurRadius: 20,
-        spreadRadius: 2,
-      ),
-    ],
-  ),
-     child: CircleAvatar(
-       radius: 115,
-       backgroundColor:
-        Theme.of(context).colorScheme.primary,
-       child: CircleAvatar(
-      radius: 110,
-      backgroundImage: AssetImage(image),
-       ),
-     ),
-   ),
+    return MouseRegion(
 
-    const SizedBox(height: 24),
+      onEnter: (_) {
+        setState(() {
+          isHovered = true;
+        });
+      },
 
-    Text(
-      name,
-      style: const TextStyle(
-        fontSize: 20,
-        fontWeight: FontWeight.bold,
-      ),
-    ),
-  ],
-),
+      onExit: (_) {
+        setState(() {
+          isHovered = false;
+        });
+      },
+
+      child: AnimatedContainer(
+
+        duration:
+            const Duration(
+          milliseconds: 250,
+        ),
+
+        transform:
+            Matrix4.identity()
+              // ignore: deprecated_member_use
+              ..scale(
+                isHovered
+                    ? 1.03
+                    : 1.0,
+              ),
+
+        child: Card(
+
+          shadowColor:
+              Colors.black26,
+
+          elevation:
+              isHovered
+                  ? 14
+                  : 6,
+
+          clipBehavior:
+              Clip.antiAlias,
+
+          shape:
+              RoundedRectangleBorder(
+            borderRadius:
+                BorderRadius.circular(
+              20,
+            ),
+          ),
+
+          child: InkWell(
+            onTap: widget.onTap,
+
+            child: Column(
+              children: [
+
+                Expanded(
+                  child: Center(
+                    child: CircleAvatar(
+                      radius: 120,
+                      backgroundImage:
+                          AssetImage(
+                        widget.image,
+                      ),
+                    ),
+                  ),
+                ),
+
+                Padding(
+                  padding:
+                      const EdgeInsets.all(
+                    12,
+                  ),
+
+                  child: Text(
+                    widget.name,
+
+                    style:
+                        const TextStyle(
+                      fontSize: 18,
+                      fontWeight:
+                          FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

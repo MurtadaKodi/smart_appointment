@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:smart_appointment/services/storage_service.dart';
-import 'pages/home_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:smart_appointment/pages/splash_screen.dart';
 
 void main() {
   runApp(const SmartAppointmentApp());
@@ -14,7 +14,8 @@ class SmartAppointmentApp extends StatefulWidget {
 }
 
 class _SmartAppointmentAppState extends State<SmartAppointmentApp> {
-  ThemeMode themeMode = ThemeMode.light;
+    ThemeMode themeMode =
+      ThemeMode.light;
 
   @override
   void initState() {
@@ -23,32 +24,34 @@ class _SmartAppointmentAppState extends State<SmartAppointmentApp> {
   }
 
   Future<void> loadTheme() async {
-    final isDark =
-        await StorageService.getTheme();
+  final prefs = await SharedPreferences.getInstance();
 
-    setState(() {
-      themeMode =
-          isDark
-              ? ThemeMode.dark
-              : ThemeMode.light;
-    });
-  }
+  final isDark =
+      prefs.getBool('isDarkMode') ?? false;
+ 
+  setState(() {
+    themeMode =
+        isDark ? ThemeMode.dark : ThemeMode.light;
+        
+  });
+}
+Future<void> toggleTheme() async {
+  final prefs = await SharedPreferences.getInstance();
 
-  void toggleTheme() async {
-    final isDark =
-        themeMode == ThemeMode.light;
+  final isDark =
+      themeMode == ThemeMode.dark;
 
-    setState(() {
-      themeMode =
-          isDark
-              ? ThemeMode.dark
-              : ThemeMode.light;
-    });
+  await prefs.setBool(
+    'isDarkMode',
+    !isDark,
+  );
 
-    await StorageService.saveTheme(
-      isDark,
-    );
-  }
+  setState(() {
+    themeMode =
+        isDark ? ThemeMode.light : ThemeMode.dark;
+  });
+}
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -71,10 +74,9 @@ darkTheme: ThemeData(
   ),
   useMaterial3: true,
 ),
-      home: HomePage(
+  home: SplashScreen(
   onToggleTheme: toggleTheme,
-  isDark:
-      themeMode == ThemeMode.dark,
+  isDark: themeMode == ThemeMode.dark,
 ),
     );
   }
