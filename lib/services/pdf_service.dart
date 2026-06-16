@@ -24,7 +24,7 @@ class PdfService {
     pdf.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
-        textDirection: pw.TextDirection.rtl,
+        textDirection: pw.TextDirection.ltr,
 
         build: (context) => [
           pw.Row(
@@ -35,7 +35,7 @@ class PdfService {
               pw.SizedBox(width: 15),
 
               pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                crossAxisAlignment: pw.CrossAxisAlignment.center,
                 children: [
                   pw.Text(
                     'SMART APPOINTMENT',
@@ -52,10 +52,18 @@ class PdfService {
 
           pw.SizedBox(height: 12),
 
-          pw.Text(
+                pw.Align(
+            alignment: pw.Alignment.centerRight,
+            child:  pw.Text(
             'إجمالي الحجوزات: ${bookings.length}',
             style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold),
+            textDirection: pw.TextDirection.rtl,
+            textAlign: pw.TextAlign.center,
+          
           ),
+          ),
+
+         
 
           pw.SizedBox(height: 10),
 
@@ -84,6 +92,8 @@ class PdfService {
                   pw.Text(
                     'الحجز رقم ${index + 1}',
                     style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                    textDirection: pw.TextDirection.rtl,
+                    textAlign: pw.TextAlign.right,
                   ),
 
                   pw.Divider(),
@@ -127,12 +137,25 @@ class PdfService {
             );
           }),
           pw.SizedBox(height: 20),
-          pw.Align(
-            alignment: pw.Alignment.centerLeft,
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+             
+              pw.Align(
+            alignment: pw.Alignment.centerRight,
             child: pw.Text(
-              'تم الإنشاء بواسطة Smart Appointment ${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}',
+              'Smart Appointment ${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}',
+              textDirection: pw.TextDirection.rtl,
             ),
+          ), 
+               pw.Text(
+                'تم الإنشاء بواسطة ',
+                style: pw.TextStyle(fontSize: 10, color: PdfColors.grey),
+                textDirection: pw.TextDirection.rtl,
+              ), 
+            ],
           ),
+          
         ],
       ),
     );
