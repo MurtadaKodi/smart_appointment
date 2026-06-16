@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:smart_appointment/models/booking_model.dart';
 import 'package:smart_appointment/services/storage_service.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../data/providers.dart';
 
 class BookingForm extends StatefulWidget {
@@ -93,7 +94,7 @@ class _BookingFormState extends State<BookingForm> {
             ),
             const SizedBox(height: 15),
             DropdownButtonFormField<String>(
-              initialValue: selectedTimeSlot,
+              initialValue: availableSlots.contains(selectedTimeSlot) ? selectedTimeSlot : null,
               decoration: const InputDecoration(
                 labelText: "Time Slot",
                 border: OutlineInputBorder(),
@@ -170,6 +171,7 @@ class _BookingFormState extends State<BookingForm> {
                           return;
                         }
                         await StorageService.saveBooking(booking);
+                        await sendWhatsAppMessage(booking);
                         await loadAvailableSlots();
                         final allBookings = await StorageService.getBookings();
 
@@ -188,20 +190,19 @@ class _BookingFormState extends State<BookingForm> {
                                 borderRadius: BorderRadius.circular(20),
                               ),
 
-                              title: const Column(
+                              title: const Row(
                                 children: [
-                                  Icon(Icons.verified, color: Colors.green, size: 60),
+                                  Icon(Icons.check_circle, color: Colors.green),
 
-                                  SizedBox(height: 12),
+                                  SizedBox(width: 10),
 
                                   Text("Booking Confirmed"),
                                 ],
                               ),
 
-                              content: Text(
-                                "${widget.provider.name}\n\n"
-                                "Your appointment has been saved successfully.",
-                                textAlign: TextAlign.center,
+                              content: const Text(
+                                "Your appointment has been successfully booked.\n\n"
+                                "A notification has been sent to the administrator.",
                               ),
 
                               actions: [
@@ -229,6 +230,7 @@ class _BookingFormState extends State<BookingForm> {
                         setState(() {
                           selectedDate = null;
                           selectedTimeSlot = null;
+                          availableSlots = [];
                         });
                       },
                 child: const Text("Book Appointment"),
@@ -276,5 +278,31 @@ class _BookingFormState extends State<BookingForm> {
     setState(() {
       availableSlots = availableTimes.where((time) => !bookedSlots.contains(time)).toList();
     });
+  }
+
+  Future<void> sendWhatsAppMessage(BookingModel booking) async {
+    const adminPhone = "97455767001"; // رقم الإدارة
+
+    final message =
+        '''
+📅 New Appointment
+
+Provider: ${booking.providerName}
+
+Client: ${booking.customerName}
+
+Date:
+${booking.date.day}/${booking.date.month}/${booking.date.year}
+
+Time:
+${booking.time}
+
+Phone:
+${booking.phone}
+''';
+
+    final url = 'https://wa.me/$adminPhone?text=${Uri.encodeComponent(message)}';
+
+    await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
   }
 }

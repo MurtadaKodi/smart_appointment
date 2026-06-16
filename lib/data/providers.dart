@@ -26,7 +26,7 @@ const providers = [
     title: "Title 1",
     description: "Description 1",
     email: "provider1@example.com",
-    phone: "123-456-7890",  
+    phone: "55767001",  
   ),
   ServiceProvider(
     id: "2",
@@ -35,7 +35,7 @@ const providers = [
     title: "Title 2",
     description: "Description 2",   
     email: "provider2@example.com",
-    phone: "234-567-8901",
+    phone: "+97455767001",
   ),
   ServiceProvider(
     id: "3",

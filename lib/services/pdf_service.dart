@@ -1,67 +1,229 @@
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
-
+import 'package:flutter/services.dart' show rootBundle;
 import '../models/booking_model.dart';
 
 class PdfService {
-  static Future<void> exportBookings(
-    List<BookingModel> bookings,
-  ) async {
-    final pdf = pw.Document();
+  static Future<void> exportBookings(List<BookingModel> bookings) async {
+    final imageData = await rootBundle.load('assets/images/logo.png');
+    final logoImage = pw.MemoryImage(imageData.buffer.asUint8List());
+    
+    final arabicFontData =
+        await rootBundle.load('assets/fonts/Cairo-Regular.ttf');
+    final arabicBoldFontData =
+        await rootBundle.load('assets/fonts/Cairo-Bold.ttf');
+    final arabicFont = pw.Font.ttf(arabicFontData);
+    final arabicBoldFont = pw.Font.ttf(arabicBoldFontData);
+    
+    final pdf = pw.Document(
+      theme: pw.ThemeData.withFont(
+        base: arabicFont,
+        bold: arabicBoldFont,
+      ),
+    );
 
     pdf.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
+
         build: (context) => [
-          pw.Header(
-            level: 0,
-            child: pw.Text(
-              'Smart Appointment',
-            ),
+          pw.Row(
+  crossAxisAlignment: pw.CrossAxisAlignment.center,
+  children: [
+    pw.Image(
+      logoImage,
+      width: 55,
+      height: 55,
+    ),
+
+    pw.SizedBox(width: 15),
+
+    pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Text(
+          'SMART APPOINTMENT',
+          style: pw.TextStyle(
+            fontSize: 24,
+            fontWeight: pw.FontWeight.bold,
           ),
+        ),
 
+        pw.SizedBox(height: 4),
+
+        pw.Text(
+          'Appointments Report',
+          style: const pw.TextStyle(
+            fontSize: 14,
+          ),
+        ),
+      ],
+    ),
+  ],
+),
+
+pw.SizedBox(height: 12),
+
+pw.Text(
+  'Total Bookings: ${bookings.length}',
+  style: pw.TextStyle(
+    fontSize: 12,
+    fontWeight: pw.FontWeight.bold,
+  ),
+),
+
+pw.SizedBox(height: 10),
+
+pw.Divider(),
+
+pw.SizedBox(height: 12),
+    pw.SizedBox(height: 20),
+
+         ...bookings.asMap().entries.map<pw.Widget>(
+  (entry) {
+    final index = entry.key;
+    final booking = entry.value;
+              return pw.Container(
+  margin:
+      const pw.EdgeInsets.only(
+    bottom: 15,
+  ),
+
+  padding:
+      const pw.EdgeInsets.all(12),
+
+  decoration: pw.BoxDecoration(
+    border: pw.Border.all(),
+    borderRadius:
+        pw.BorderRadius.circular(8),
+  ),
+
+  child: pw.Column(
+    crossAxisAlignment:
+        pw.CrossAxisAlignment.start,
+
+    children: [
+
+      pw.Text(
+        'BOOKING #${index + 1}',
+        style: pw.TextStyle(
+          fontWeight:
+              pw.FontWeight.bold,
+        ),
+      ),
+
+    pw.Divider(),
+
+pw.SizedBox(height: 10),
+
+      pw.RichText(
+  text: pw.TextSpan(
+    children: [
+      pw.TextSpan(
+        text: 'Client: ',
+        style: pw.TextStyle(
+          fontWeight:
+              pw.FontWeight.bold,
+        ),
+      ),
+      pw.TextSpan(
+        text:
+            booking.customerName,
+      ),
+    ],
+  ),
+),
+pw.SizedBox(height: 5),
+      pw.RichText(
+  text: pw.TextSpan(
+    children: [
+      pw.TextSpan(
+        text: 'Provider: ',
+        style: pw.TextStyle(
+          fontWeight:
+              pw.FontWeight.bold,
+        ),
+      ),
+      pw.TextSpan(
+        text: booking.providerName,
+      ),
+    ],
+  ),
+),
+pw.SizedBox(height: 5),
+
+      pw.RichText(
+  text: pw.TextSpan(
+    children: [
+      pw.TextSpan(
+        text: 'Date: ',
+        style: pw.TextStyle(
+          fontWeight:
+              pw.FontWeight.bold,
+        ),
+      ),
+      pw.TextSpan(
+        text: '${booking.date.day}/${booking.date.month}/${booking.date.year}',
+      ),
+    ],
+  ),
+),
+pw.SizedBox(height: 5),
+
+      pw.RichText(
+  text: pw.TextSpan(
+    children: [
+      pw.TextSpan(
+        text: 'Time Slot: ',
+        style: pw.TextStyle(
+          fontWeight:
+              pw.FontWeight.bold,
+        ),
+      ),
+      pw.TextSpan(
+        text: booking.time,
+      ),
+    ],
+  ),
+),
+pw.SizedBox(height: 5),
+
+   pw.RichText(
+  text: pw.TextSpan(
+    children: [
+      pw.TextSpan(
+        text: 'Phone: ',
+        style: pw.TextStyle(
+          fontWeight:
+              pw.FontWeight.bold,
+        ),
+      ),
+      pw.TextSpan(
+        text: booking.phone,
+      ),  
+    ],
+  ),
+),
+
+    
+    ],
+  ),
+);
+            },
+          ),
           pw.SizedBox(height: 20),
-
-          ...bookings.map(
-            (booking) => pw.Container(
-              margin: const pw.EdgeInsets.only(
-                bottom: 10,
-              ),
-              padding: const pw.EdgeInsets.all(10),
-              decoration: pw.BoxDecoration(
-                border: pw.Border.all(),
-              ),
-              child: pw.Column(
-                crossAxisAlignment:
-                    pw.CrossAxisAlignment.start,
-                children: [
-                  pw.Text(
-                    'Client: ${booking.customerName}',
-                  ),
-                  pw.Text(
-                    'Provider: ${booking.providerName}',
-                  ),
-                  pw.Text(
-                    'Date: ${booking.date.day}/${booking.date.month}/${booking.date.year}',
-                  ),
-                  pw.Text(
-                    'Time: ${booking.time}',
-                  ),
-                  pw.Text(
-                    'Phone: ${booking.phone}',
-                  ),
-                ],
-              ),
+          pw.Align(
+            alignment: pw.Alignment.centerLeft,
+            child: pw.Text(
+              'Generated by Smart Appointment ${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}',
             ),
           ),
         ],
       ),
     );
 
-    await Printing.layoutPdf(
-      onLayout: (format) async =>
-          pdf.save(),
-    );
+    await Printing.layoutPdf(onLayout: (format) async => pdf.save());
   }
-}
+  }
+
